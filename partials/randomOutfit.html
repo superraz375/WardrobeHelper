@@ -1,17 +1,24 @@
-<div class="panel">
+<style>
+    img {
+        width: 100%;
+        height: auto;
+        border-radius: 40px;;
+    }
+</style>
 
-    <style>
-        img {
-            width: 250px;
-            height: 250px;
-        }
-    </style>
-    <h1>SHIRT</h1>
-    <img ng-src="images/{{outfit.shirt.image_id}}"/>
 
-    <h1>PANTS</h1>
-    <img ng-src="images/{{outfit.pants.image_id}}"/>
+<div class="row">
 
-    <h1>SHOES</h1>
-    <img ng-src="images/{{outfit.shoes.image_id}}"/>
+    <div class="col-md-4">
+        <h1><span class="label label-default">SHIRT</span></h1>
+        <img ng-src="images/{{outfit.shirt.image_id}}"/>
+    </div>
+    <div class="col-md-4">
+        <h1><span class="label label-default">PANTS</span></h1>
+        <img ng-src="images/{{outfit.pants.image_id}}"/>
+    </div>
+    <div class="col-md-4">
+        <h1><span class="label label-default">SHOES</span></h1>
+        <img ng-src="images/{{outfit.shoes.image_id}}"/>
+    </div>
 </div>

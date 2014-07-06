@@ -1,0 +1,79 @@
+<style>
+    ul.images {
+        margin: 0;
+        padding: 0;
+        white-space: nowrap;
+        overflow-x: auto;
+        height: 150px;
+    }
+    ul.images li {
+        display: inline;
+        width: 100px;
+        height: auto;
+
+
+    }
+
+    ul.images li.selected img {
+        border: 2px solid blue;
+    }
+
+    ul.images img {
+        height: inherit;
+        width: inherit;
+    }
+</style>
+
+<div class="panel panel-primary">
+    <div class="panel-heading">
+        <h3 class="panel-title">Shirts</h3>
+    </div>
+    <div class="panel-body">
+        <ul class="images">
+            <li ng-class="{selected: outfit.shirt==item}"
+                ng-click="toggleShirt(item)"
+                ng-repeat="item in outfit_data | shirts | hasImageId | matchesOutfit:outfit">
+                <img ng-src="images/{{item.image_id}}"/>
+            </li>
+        </ul>
+    </div>
+</div>
+
+<div class="panel panel-primary">
+    <div class="panel-heading">
+        <h3 class="panel-title">Pants</h3>
+    </div>
+    <div class="panel-body">
+        <ul class="images">
+            <li ng-class="{selected: outfit.pants==item}"
+                ng-click="togglePants(item)"
+                ng-repeat="item in outfit_data | pants | hasImageId | matchesOutfit:outfit">
+                <img ng-src="images/{{item.image_id}}"/>
+            </li>
+        </ul>
+    </div>
+</div>
+
+<div class="panel panel-primary">
+    <div class="panel-heading">
+        <h3 class="panel-title">Shoes</h3>
+    </div>
+    <div class="panel-body">
+        <ul class="images">
+            <li ng-class="{selected: outfit.shoes==item}"
+                ng-click="toggleShoes(item)"
+                ng-repeat="item in outfit_data | shoes | hasImageId | matchesOutfit:outfit">
+                <img ng-src="images/{{item.image_id}}"/>
+            </li>
+        </ul>
+    </div>
+</div>
+
+<div class="panel panel-primary">
+    <div class="panel-heading">
+        <h3 class="panel-title">Actions</h3>
+    </div>
+    <div class="panel-body">
+        <button class="btn btn-danger" ng-click="clearOutfit()">Clear Selection</button>
+        </div>
+    </div>
