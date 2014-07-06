@@ -32,6 +32,148 @@ app.filter('map', function() {
     };
 });
 
+app.factory("WardrobeService", function() {
+
+
+    shuffle = function shuffle(o){ //v1.0
+        for(var j, x, i = o.length; i; j = Math.floor(Math.random() * i), x = o[--i], o[i] = o[j], o[j] = x);
+        return o;
+    };
+
+
+    isWhiteOrKhaki = function(color) {
+        return color == 'White' || color == 'Khaki';
+    };
+
+    isBlackAndNavy = function(color1, color2) {
+        return (color1 == 'Black' && color2 == 'Navy') ||
+            (color1 == 'Navy' && color2 == 'Black');
+    }
+
+    isBrownAndGrey = function(color1, color2) {
+        return (color1 == 'Brown' && color2 == 'Grey') ||
+            (color1 == 'Grey' && color2 == 'Brown');
+    }
+
+    isSameColor = function(color1, color2) {
+      return color1 == color2;
+    };
+
+    doesShirtMatchPants = function(shirt, pants) {
+
+        //Keep to one pattern only per outfit, even if the colours match.
+        if(pants.pattern != 'Plain' && shirt.pattern != 'Plain') {
+            if(pants.pattern != shirt.pattern) {
+                return false;
+            }
+        }
+
+        //Don't mix black and navy
+        if(pants.detailed_type != 'Jeans' && isBlackAndNavy(shirt.primary_color, pants.primary_color)) {
+            return false;
+        }
+
+        // Don't mix brown and grey
+        if(isBrownAndGrey(shirt.primary_color, pants.primary_color)) {
+            return false;
+        }
+
+
+        if(pants.detailed_type == 'Swimsuit') {
+
+            if(shirt.detailed_type == 'T-Shirt') {
+
+            } else {
+                return false;
+            }
+        } else if (pants.detailed_type == 'Jeans') {
+            return shirt.detailed_type != 'Tanktop';
+        } else if (pants.detailed_type == 'Slacks') {
+            if(isWhiteOrKhaki(pants.primary_color) && !isSameColor(shirt.primary_color, pants.primary_color)) {
+                return true;
+            } else {
+                return false;
+            }
+        } else if (pants.detailed_type == 'Shorts') {
+
+            if(shirt.detailed_type == 'Dress Shirt') {
+                return false;
+            }
+
+            if(isWhiteOrKhaki(pants.primary_color) && !isSameColor(shirt.primary_color, pants.primary_color)) {
+                return true;
+            }
+
+            if(shirt.secondary_color == pants.primary_color) {
+                return true;
+            }
+
+            return false;
+
+        } else {
+            return false;
+        }
+    };
+
+    return {
+        selectRandomOutfit: function(data) {
+
+            data = shuffle(data);
+
+            var outfit = {
+                shirt: {},
+                pants: {},
+                shoes: {}
+            };
+
+            for(var i = 0; i < data.length; i++) {
+                var item = data[i];
+
+                if(item.image_id.length > 0) {
+
+                    if(item.type == 'Shirt') {
+                        outfit.shirt = item
+                        break;
+                    }
+                }
+            }
+
+            for(var i = 0; i < data.length; i++) {
+                var item = data[i];
+
+                if(item.image_id.length > 0) {
+                    if(item.type == 'Pants') {
+                        if(doesShirtMatchPants(outfit.shirt, item)) {
+                            outfit.pants = item;
+                            break;
+                        }
+                    }
+                }
+            }
+
+            for(var i = 0; i < data.length; i++) {
+                var item = data[i];
+
+                if(item.image_id.length > 0) {
+                    if(item.type == 'Shoes') {
+
+                        if(item.detailed_type == 'Sperries') {
+                            outfit.shoes = item;
+                            break;
+                        }
+
+                    }
+                }
+            }
+
+            return outfit;
+        },
+        first: function() {
+            return;
+        }
+    };
+});
+
 
 app.controller('AllClothesController', function ($scope, $http, $log, $filter, $modal, filterFilter) {
 
@@ -110,12 +252,12 @@ app.controller('AllClothesController', function ($scope, $http, $log, $filter, $
     };
 });
 
-app.controller('RandomOutfitController', function ($scope, $http, $log, $filter, $modal, filterFilter) {
+app.controller('RandomOutfitController', function ($scope, $http, $log, $filter, $modal, filterFilter, WardrobeService) {
 
     $http.get('clothes.json').success(function(data) {
         $scope.outfit_data = data;
 
-        $scope.selectRandomOutfit();
+        $scope.outfit = WardrobeService.selectRandomOutfit(data);
     });
 
     $scope.outfit = {
@@ -123,81 +265,6 @@ app.controller('RandomOutfitController', function ($scope, $http, $log, $filter,
         pants: {},
         shoes: {}
     };
-
-    $scope.selectRandomOutfit=  function() {
-
-        $scope.outfit_data = $scope.shuffle($scope.outfit_data);
-
-        for(var i = 0; i < $scope.outfit_data.length; i++) {
-            var item = $scope.outfit_data[i];
-
-            if(item.image_id.length > 0) {
-
-                if(item.type == 'Shirt') {
-                    $scope.outfit.shirt = item
-                    break;
-                }
-            }
-        }
-
-        for(var i = 0; i < $scope.outfit_data.length; i++) {
-            var item = $scope.outfit_data[i];
-
-            if(item.image_id.length > 0) {
-                if(item.type == 'Pants') {
-
-                    if(item.primary_color == 'White' ||
-                        item.primary_color == 'Khaki') {
-                        if(item.primary_color != $scope.outfit.shirt.primary_color) {
-                            $scope.outfit.pants = item;
-                            break;
-                        }
-                    }
-
-                    if(item.primary_color == $scope.outfit.shirt.secondary_color) {
-                        $scope.outfit.pants = item;
-                        break;
-                    }
-
-
-
-
-
-                }
-            }
-        }
-
-        for(var i = 0; i < $scope.outfit_data.length; i++) {
-            var item = $scope.outfit_data[i];
-
-            if(item.image_id.length > 0) {
-                if(item.type == 'Shoes') {
-
-                    if(item.detailed_type == 'Loafers') {
-                        $scope.outfit.shoes = item;
-                    }
-                    break;
-                }
-            }
-        }
-
-
-    };
-
-    $scope.shuffle = function shuffle(o){ //v1.0
-        for(var j, x, i = o.length; i; j = Math.floor(Math.random() * i), x = o[--i], o[i] = o[j], o[j] = x);
-        return o;
-    };
-
-
-
-
-    // pick random shirt.
-
-    // find a matching pants
-
-    // find a matching shoes
-
 });
 
 
@@ -207,7 +274,7 @@ app.controller('FindMatchingClothesController', function ($scope, $http, $log, $
         $scope.myData = data;
     });
 
-    // pick random shirt.
+    // pick a shirt.
 
     // find a matching pants
 
